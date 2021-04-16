@@ -10,6 +10,12 @@ import numpy as np
 
 class Heat:
     def __init__(self, net_model, te, xe, ye):
+        """
+        :param net_model: mappint x, y, t to T
+        :param te: time step
+        :param xe: x step
+        :param ye: y step
+        """
         self.net = net_model
         self.te = te
         self.xe = xe
@@ -19,39 +25,47 @@ class Heat:
         te = self.te
         xe = self.xe
         ye = self.ye
-        x = torch.cat((torch.rand([size, 1]) * te, torch.rand([size, 1]) * xe, torch.rand([size, 1]) * ye), dim=1)
-        x_initial = torch.cat((torch.zeros(size, 1), torch.rand([size, 1]) * xe, torch.rand([size, 1]) * ye), dim=1)
-        x_boundary_left = torch.cat((torch.rand([size, 1]) * te, torch.zeros([size, 1]), torch.rand(size, 1) * ye),
+
+
+        # t_x_y = [ti, xi, yi]i=1...,size (size x 3 tensor)
+        t_x_y = torch.cat((torch.rand([size, 1]) * te, torch.rand([size, 1]) * xe, torch.rand([size, 1]) * ye), dim=1)
+        x_y_initial = torch.cat((torch.zeros(size, 1), torch.rand([size, 1]) * xe, torch.rand([size, 1]) * ye), dim=1)
+        # boundary condition [0, 1] x [0, 1] = 0
+        boundary_left = torch.cat((torch.rand([size, 1]) * te, torch.zeros([size, 1]), torch.rand(size, 1) * ye),
                                     dim=1)
-        x_boundary_right = torch.cat((torch.rand([size, 1]) * te, torch.ones([size, 1]) * xe, torch.rand(size, 1) * ye),
+        boundary_right = torch.cat((torch.rand([size, 1]) * te, torch.ones([size, 1]) * xe, torch.rand(size, 1) * ye),
                                      dim=1)
-        x_boundary_up = torch.cat((torch.rand([size, 1]) * te, torch.rand([size, 1]) * xe, torch.ones(size, 1) * ye),
+        boundary_up = torch.cat((torch.rand([size, 1]) * te, torch.rand([size, 1]) * xe, torch.ones(size, 1) * ye),
                                   dim=1)
-        x_boundary_down = torch.cat((torch.rand([size, 1]) * te, torch.rand([size, 1]) * xe, torch.zeros(size, 1)),
+        boundary_down = torch.cat((torch.rand([size, 1]) * te, torch.rand([size, 1]) * xe, torch.zeros(size, 1)),
                                     dim=1)
-        return x, x_initial, x_boundary_left, x_boundary_right, x_boundary_up, x_boundary_down
+        return t_x_y, x_y_initial, boundary_left, boundary_right, boundary_up, boundary_down
 
     def loss_func(self, size=2 ** 8):
-        x, x_initial, x_boundary_left, x_boundary_right, x_boundary_up, x_boundary_down = self.sample(size=size)
-        x = Variable(x, requires_grad=True)
+        x_y_t, x_initial, x_boundary_left, x_boundary_right, x_boundary_up, x_boundary_down = self.sample(size=size)
+        x_y_t = Variable(x_y_t, requires_grad=True)
 
-        d = torch.autograd.grad(self.net(x), x, grad_outputs=torch.ones_like(self.net(x)), create_graph=True)
-        dt = d[0][:, 0].reshape(-1, 1)  # transform the vector into a column vector
-        dx = d[0][:, 1].reshape(-1, 1)
-        dy = d[0][:, 2].reshape(-1, 1)
+        jacob_matrix = torch.autograd.grad(self.net(x_y_t), x_y_t, grad_outputs=torch.ones_like(self.net(x_y_t)), create_graph=True)
+        dtemp_dt = jacob_matrix[0][:, 0].reshape(-1, 1)  # transform the vector into a column vector
+        dtemp_dx = jacob_matrix[0][:, 1].reshape(-1, 1)
+        dtemp_dy = jacob_matrix[0][:, 2].reshape(-1, 1)
         # du/dxdx
-        dxx = torch.autograd.grad(dx, x, grad_outputs=torch.ones_like(dx), create_graph=True)[0][:, 1].reshape(-1, 1)
+        dtemp_dxx = torch.autograd.grad(dtemp_dx, x_y_t, grad_outputs=torch.ones_like(dtemp_dx), create_graph=True)[0][:, 1].reshape(-1, 1)
         # du/dydy
-        dyy = torch.autograd.grad(dy, x, grad_outputs=torch.ones_like(dy), create_graph=True)[0][:, 2].reshape(-1, 1)
+        dtemp_dyy = torch.autograd.grad(dtemp_dy, x_y_t, grad_outputs=torch.ones_like(dtemp_dy), create_graph=True)[0][:, 2].reshape(-1, 1)
 
-        f = np.pi * (torch.cos(np.pi * x[:, 0])) * (torch.sin(np.pi * x[:, 1])) * (torch.sin(np.pi * x[:, 2])) \
-            + 2 * np.pi * np.pi * (torch.sin(np.pi * x[:, 0])) * (torch.sin(np.pi * x[:, 1])) * (
-                torch.sin(np.pi * x[:, 2]))
+        conduct_heat_par = (x_y_t[:, 0] - 0.5) ** 2 + (x_y_t[:, 1] - 0.5) ** 2
 
-        diff_error = (dt - dxx - dyy - f.reshape(-1, 1)) ** 2
-        # initial condition
+        f = np.pi * (torch.cos(np.pi * x_y_t[:, 0])) * (torch.sin(np.pi * x_y_t[:, 1])) * (torch.sin(np.pi * x_y_t[:, 2])) \
+            + 2 * np.pi * np.pi * (torch.sin(np.pi * x_y_t[:, 0])) * (torch.sin(np.pi * x_y_t[:, 1])) * (
+                torch.sin(np.pi * x_y_t[:, 2]))
+        # add conduct heat coefficient
+        diff_error = (dtemp_dt - conduct_heat_par * (dtemp_dxx + dtemp_dyy)
+                      - f.reshape(-1, 1)) ** 2
+
+        # initial condition(T_init = 0)
         init_error = (self.net(x_initial)) ** 2
-        # boundary condition
+        # boundary condition(T_boundary = 0)
         bd_left_error = (self.net(x_boundary_left)) ** 2
         bd_right_error = (self.net(x_boundary_right)) ** 2
         bd_up_error = (self.net(x_boundary_up)) ** 2

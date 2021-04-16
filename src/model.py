@@ -1,5 +1,4 @@
 import torch
-import matplotlib.pyplot as plt
 import numpy as np
 
 import torch.nn as nn
@@ -13,6 +12,11 @@ from matplotlib import cm
 
 class Net(nn.Module):
     def __init__(self, hidden_layer_num, node_num):
+        """
+        Mapping input x, y, z, t to T
+        :param hidden_layer_num:
+        :param node_num:
+        """
         super(Net, self).__init__()
         self.input_layer = nn.Linear(3, node_num)
         self.hidden_layers = nn.ModuleList([nn.Linear(node_num, node_num) for i in range(hidden_layer_num)])

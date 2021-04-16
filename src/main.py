@@ -5,12 +5,12 @@
 import os
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-from libs import *
+
 from src.train import *
 from src.model import *
 from src.pde_model import *
 
-net = Net(2, 20)
+net = Net(2, 20)  # hidden layer num = 20, node num = 2
 te = 4
 xe = 1
 ye = 1
@@ -18,7 +18,7 @@ heatequation = Heat(net, te, xe, ye)
 
 train = Train(net, heatequation, BATCH_SIZE=2**8)
 
-train.train(epoch=10**5, lr=0.0001)
+train.train(epoch=10**4, lr=0.0001)
 
 torch.save(net, '../model/net_model.pkl')
 
@@ -54,10 +54,7 @@ for _t in t_range:
             Zdata = net(indata).detach().cpu().numpy()
             Z.append(Zdata)
             TrueZ.append(np.sin(np.pi*_t)*np.sin(np.pi*_x)*np.sin(np.pi*_y))
-
-
     _X, _Y = np.meshgrid(x_range, y_range, indexing='ij')
-
     Z_surface = np.reshape(Z, (x_range.shape[0], y_range.shape[0]))
     True_Z_surface = np.reshape(TrueZ, (x_range.shape[0], y_range.shape[0]))
 
