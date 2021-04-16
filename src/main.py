@@ -5,7 +5,6 @@
 import os
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-from libs import *
 from src.train import *
 from src.model import *
 from src.pde_model import *
