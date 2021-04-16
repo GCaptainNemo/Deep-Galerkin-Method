@@ -1,0 +1,5 @@
+.idea
+src/__pycache__/
+src/net_model.pkl
+model/
+pictures/
