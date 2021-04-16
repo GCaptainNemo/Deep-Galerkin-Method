@@ -1,5 +1,6 @@
 .idea
 src/__pycache__/
 src/net_model.pkl
+docs/.ipynb_checkpoints
 model/
 pictures/
