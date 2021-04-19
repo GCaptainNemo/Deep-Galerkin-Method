@@ -10,16 +10,16 @@ from src.model import *
 from src.pde_model import *
 
 net = Net(2, 20)  # hidden layer num = 20, node num = 2
-te = 4
-xe = 1
+te = 4  # total 0-4
+xe = 1  # total 0-1
 ye = 1
 heatequation = Heat(net, te, xe, ye)
 
-train = Train(net, heatequation, BATCH_SIZE=2**8)
+train = Train(net, heatequation, batch_size=2000)
 
-train.train(epoch=10**4, lr=0.0001)
+train.train(epoch=10 ** 5, lr=0.0001)
 
-torch.save(net, '../model/net_model.pkl')
+torch.save(net, '../model/net_model_new.pkl')
 
 errors = train.get_errors()
 
@@ -27,7 +27,7 @@ errors = train.get_errors()
 fig = plt.figure()
 plt.plot(np.log(errors), '-b', label='Errors')
 plt.title('Training Loss', fontsize=10)
-path = "../pictures/trainingloss.png"
+path = "../pictures/trainingloss_new.png"
 # plt.show()
 plt.savefig(path)
 plt.close(fig)

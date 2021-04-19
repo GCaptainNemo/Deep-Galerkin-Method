@@ -21,7 +21,7 @@ class Heat:
         self.xe = xe
         self.ye = ye
 
-    def sample(self, size=2 ** 8):
+    def sample(self, size):
         te = self.te
         xe = self.xe
         ye = self.ye
@@ -41,24 +41,25 @@ class Heat:
                                     dim=1)
         return t_x_y, x_y_initial, boundary_left, boundary_right, boundary_up, boundary_down
 
-    def loss_func(self, size=2 ** 8):
-        x_y_t, x_initial, x_boundary_left, x_boundary_right, x_boundary_up, x_boundary_down = self.sample(size=size)
-        x_y_t = Variable(x_y_t, requires_grad=True)
+    def loss_func(self, size):
+        t_x_y, x_initial, x_boundary_left, x_boundary_right, x_boundary_up, x_boundary_down = self.sample(size=size)
+        t_x_y = Variable(t_x_y, requires_grad=True)
 
-        jacob_matrix = torch.autograd.grad(self.net(x_y_t), x_y_t, grad_outputs=torch.ones_like(self.net(x_y_t)), create_graph=True)
+        jacob_matrix = torch.autograd.grad(self.net(t_x_y), t_x_y, grad_outputs=torch.ones_like(self.net(t_x_y)), create_graph=True)
         dtemp_dt = jacob_matrix[0][:, 0].reshape(-1, 1)  # transform the vector into a column vector
         dtemp_dx = jacob_matrix[0][:, 1].reshape(-1, 1)
         dtemp_dy = jacob_matrix[0][:, 2].reshape(-1, 1)
         # du/dxdx
-        dtemp_dxx = torch.autograd.grad(dtemp_dx, x_y_t, grad_outputs=torch.ones_like(dtemp_dx), create_graph=True)[0][:, 1].reshape(-1, 1)
+        dtemp_dxx = torch.autograd.grad(dtemp_dx, t_x_y, grad_outputs=torch.ones_like(dtemp_dx), create_graph=True)[0][:, 1].reshape(-1, 1)
         # du/dydy
-        dtemp_dyy = torch.autograd.grad(dtemp_dy, x_y_t, grad_outputs=torch.ones_like(dtemp_dy), create_graph=True)[0][:, 2].reshape(-1, 1)
+        dtemp_dyy = torch.autograd.grad(dtemp_dy, t_x_y, grad_outputs=torch.ones_like(dtemp_dy), create_graph=True)[0][:, 2].reshape(-1, 1)
 
-        conduct_heat_par = (x_y_t[:, 0] - 0.5) ** 2 + (x_y_t[:, 1] - 0.5) ** 2
+        # setting conduct heat parameter
+        conduct_heat_par = (t_x_y[:, 1] - 0.5) ** 2 + (t_x_y[:, 2] - 0.5) ** 2
 
-        f = np.pi * (torch.cos(np.pi * x_y_t[:, 0])) * (torch.sin(np.pi * x_y_t[:, 1])) * (torch.sin(np.pi * x_y_t[:, 2])) \
-            + 2 * np.pi * np.pi * (torch.sin(np.pi * x_y_t[:, 0])) * (torch.sin(np.pi * x_y_t[:, 1])) * (
-                torch.sin(np.pi * x_y_t[:, 2]))
+        f = np.pi * (torch.cos(np.pi * t_x_y[:, 0])) * (torch.sin(np.pi * t_x_y[:, 1])) * (torch.sin(np.pi * t_x_y[:, 2])) \
+            + 2 * np.pi * np.pi * (torch.sin(np.pi * t_x_y[:, 0])) * (torch.sin(np.pi * t_x_y[:, 1])) * (
+                torch.sin(np.pi * t_x_y[:, 2]))
         # add conduct heat coefficient
         diff_error = (dtemp_dt - conduct_heat_par * (dtemp_dxx + dtemp_dyy)
                       - f.reshape(-1, 1)) ** 2

@@ -6,9 +6,9 @@ import torch.optim as optim
 
 
 class Train():
-    def __init__(self, net, heateq, BATCH_SIZE):
+    def __init__(self, net, heateq, batch_size):
         self.errors = []
-        self.BATCH_SIZE = BATCH_SIZE
+        self.BATCH_SIZE = batch_size
         self.net = net
         self.model = heateq
 

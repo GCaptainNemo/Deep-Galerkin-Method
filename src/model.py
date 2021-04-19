@@ -30,4 +30,5 @@ class Net(nn.Module):
         return out
 
     def activate_func(self, x):
-        return x * torch.sigmoid(x)
+        # return x * torch.sigmoid(x)
+        return torch.tanh(x)

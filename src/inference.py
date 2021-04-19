@@ -10,7 +10,7 @@ xe = 1
 ye = 1
 # from src.model import Net
 # model = Net(2, 20)
-model = torch.load('../model/net_model.pkl')
+model = torch.load('../model/net_model_new.pkl')
 model.eval()
 
 t_range = np.linspace(0, te, 100, dtype=np.float64)
@@ -30,6 +30,6 @@ for i_t, _t in enumerate(t_range):
             # print("temp = ", temp)
             train_data[i_t, i_x, i_y, 3] = temp
 
-with open("../train_data/train_data.pkl", "wb") as f:
+with open("../train_data/train_data_105.pkl", "wb") as f:
     pickle.dump(train_data, f)
 
