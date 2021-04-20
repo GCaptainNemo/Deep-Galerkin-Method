@@ -25,8 +25,6 @@ class Heat:
         te = self.te
         xe = self.xe
         ye = self.ye
-
-
         # t_x_y = [ti, xi, yi]i=1...,size (size x 3 tensor)
         t_x_y = torch.cat((torch.rand([size, 1]) * te, torch.rand([size, 1]) * xe, torch.rand([size, 1]) * ye), dim=1)
         x_y_initial = torch.cat((torch.zeros(size, 1), torch.rand([size, 1]) * xe, torch.rand([size, 1]) * ye), dim=1)
@@ -55,7 +53,7 @@ class Heat:
         dtemp_dyy = torch.autograd.grad(dtemp_dy, t_x_y, grad_outputs=torch.ones_like(dtemp_dy), create_graph=True)[0][:, 2].reshape(-1, 1)
 
         # setting conduct heat parameter
-        conduct_heat_par = (t_x_y[:, 1] - 0.5) ** 2 + (t_x_y[:, 2] - 0.5) ** 2
+        conduct_heat_par = 10 * (t_x_y[:, 1] - 0.5) ** 2 + (t_x_y[:, 2] - 0.5) ** 2 + 10
 
         f = np.pi * (torch.cos(np.pi * t_x_y[:, 0])) * (torch.sin(np.pi * t_x_y[:, 1])) * (torch.sin(np.pi * t_x_y[:, 2])) \
             + 2 * np.pi * np.pi * (torch.sin(np.pi * t_x_y[:, 0])) * (torch.sin(np.pi * t_x_y[:, 1])) * (

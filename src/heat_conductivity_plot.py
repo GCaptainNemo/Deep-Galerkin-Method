@@ -14,12 +14,12 @@ t_range = np.linspace(0, te, 100, dtype=np.float64)
 x_range = np.linspace(0, xe, 100, dtype=np.float64)
 y_range = np.linspace(0, ye, 100, dtype=np.float64)
 _X, _Y = np.meshgrid(x_range, y_range, indexing='ij')
-Z = (_X - 0.5) ** 2 + (_Y - 0.5) ** 2
+Z = (_X - 0.5) ** 2 * 10 + (_Y - 0.5) ** 2 + 10
 Z_surface = np.reshape(Z, (x_range.shape[0], y_range.shape[0]))
 
 fig = plt.figure()
 ax = fig.gca(projection='3d')
-ax.set_zlim([-1, 1])
+ax.set_zlim([0, 15])
 ax.plot_surface(_X, _Y, Z_surface, cmap=cm.RdYlBu_r, edgecolor='blue', linewidth=0.0003, antialiased=True)
 ax.set_xlabel('x')
 ax.set_ylabel('y')
