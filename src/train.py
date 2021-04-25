@@ -5,7 +5,7 @@
 import torch.optim as optim
 
 
-class Train():
+class Train:
     def __init__(self, net, heateq, batch_size):
         self.errors = []
         self.BATCH_SIZE = batch_size
@@ -23,7 +23,7 @@ class Train():
             optimizer.step()
             if e % 50 == 49:
                 loss = avg_loss/50
-                print("Epoch {} - lr {} -  loss: {}".format(e, lr, loss))
+                print("Step {} - lr {} -  loss: {}".format(e, lr, loss))
                 avg_loss = 0
 
                 error = self.model.loss_func(2**8)

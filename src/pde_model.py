@@ -16,6 +16,8 @@ class Heat:
         :param xe: x step
         :param ye: y step
         """
+        # self.cond_function = lambda x, y: 5 * (x - 0.5) ** 2 + 5 * (y - 0.5) ** 2 + 5
+        self.cond_function = lambda x, y: 1
         self.net = net_model
         self.te = te
         self.xe = xe
@@ -53,14 +55,14 @@ class Heat:
         dtemp_dyy = torch.autograd.grad(dtemp_dy, t_x_y, grad_outputs=torch.ones_like(dtemp_dy), create_graph=True)[0][:, 2].reshape(-1, 1)
 
         # setting conduct heat parameter
-        conduct_heat_par = 10 * (t_x_y[:, 1] - 0.5) ** 2 + (t_x_y[:, 2] - 0.5) ** 2 + 10
-
-        f = np.pi * (torch.cos(np.pi * t_x_y[:, 0])) * (torch.sin(np.pi * t_x_y[:, 1])) * (torch.sin(np.pi * t_x_y[:, 2])) \
+        # conduct_heat_par = 5 * (t_x_y[:, 1] - 0.5) ** 2 + 5 * (t_x_y[:, 2] - 0.5) ** 2 + 5
+        conduct_heat_par = self.cond_function(t_x_y[:, 1], t_x_y[:, 2])
+        heat_source = np.pi * (torch.cos(np.pi * t_x_y[:, 0])) * (torch.sin(np.pi * t_x_y[:, 1])) * (torch.sin(np.pi * t_x_y[:, 2])) \
             + 2 * np.pi * np.pi * (torch.sin(np.pi * t_x_y[:, 0])) * (torch.sin(np.pi * t_x_y[:, 1])) * (
                 torch.sin(np.pi * t_x_y[:, 2]))
         # add conduct heat coefficient
         diff_error = (dtemp_dt - conduct_heat_par * (dtemp_dxx + dtemp_dyy)
-                      - f.reshape(-1, 1)) ** 2
+                      - heat_source.reshape(-1, 1)) ** 2
 
         # initial condition(T_init = 0)
         init_error = (self.net(x_initial)) ** 2

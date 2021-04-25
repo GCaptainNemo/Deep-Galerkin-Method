@@ -14,7 +14,8 @@ t_range = np.linspace(0, te, 100, dtype=np.float64)
 x_range = np.linspace(0, xe, 100, dtype=np.float64)
 y_range = np.linspace(0, ye, 100, dtype=np.float64)
 _X, _Y = np.meshgrid(x_range, y_range, indexing='ij')
-Z = (_X - 0.5) ** 2 * 10 + (_Y - 0.5) ** 2 + 10
+# Z = (_X - 0.5) ** 2 * 10 + (_Y - 0.5) ** 2 + 10
+Z = 5 * (_X - 0.5) ** 2 + 5 * (_Y - 0.5) ** 2 + 5
 Z_surface = np.reshape(Z, (x_range.shape[0], y_range.shape[0]))
 
 fig = plt.figure()

@@ -2,25 +2,25 @@
 # -*- coding: utf-8 -*-
 # author： 11360
 # datetime： 2021/4/14 23:32 
-import os
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 from src.train import *
 from src.model import *
 from src.pde_model import *
 
-net = torch.load('../model/net_model_new.pt')
-# net = Net(2, 20)  # hidden layer num = 20, node num = 2
+# net = torch.load('../model/net_model_new.pth')
+# net = torch.load('../model/bowl5_model_new.pth')
+
+net = Net(2, 20)  # hidden layer num = 20, node num = 2
 te = 4  # total 0-4
 xe = 1  # total 0-1
 ye = 1
 heatequation = Heat(net, te, xe, ye)
 
-train = Train(net, heatequation, batch_size=2000)
+train = Train(net, heatequation, batch_size=1000)
 
-train.train(epoch=10 ** 3, lr=0.0001)
+train.train(epoch=10 ** 4, lr=0.0003)
 
-torch.save(net, '../model/net_model_new.pt')
+torch.save(net, '../model/ones_model.pth')
 
 errors = train.get_errors()
 
@@ -33,17 +33,14 @@ path = "../pictures/trainingloss_new.png"
 plt.savefig(path)
 plt.close(fig)
 
-# net = torch.load('net_model.pkl')
 
-plot = False
+plot = True
 
 if plot:
     t_range = np.linspace(0, te, 100, dtype=np.float64)
     x_range = np.linspace(0, xe, 100, dtype=np.float64)
     y_range = np.linspace(0, ye, 100, dtype=np.float64)
-
     data = np.empty((3, 1))
-
     k = 0
     for _t in t_range:
         TrueZ = []
