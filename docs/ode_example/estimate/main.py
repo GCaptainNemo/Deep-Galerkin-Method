@@ -9,8 +9,8 @@ from docs.ode_example.estimate.criterion import *
 from docs.ode_example.estimate.train import *
 import torch
 
-# 10 layer 2 node
-model = EstimateCond(15, 2, 20, 2)
+# 10 layer 2 node(cond, temp)
+model = EstimateCond(15, 2, 10, 2)
 # model = torch.load("model.pth")
 
 x = torch.linspace(0, 4, 50, dtype=torch.float32).reshape(-1, 1)
@@ -21,7 +21,7 @@ data_sampler = DataSampler(100, 1, 30, observe_x_y)  # 100 data, 10 boundary dat
 criterion = Criterion(model, data_sampler)
 
 train = Train(criterion)
-train.train(5000, 1e-4)
+train.train(5000, 3e-4)
 
 torch.save(model, 'model.pth')
 

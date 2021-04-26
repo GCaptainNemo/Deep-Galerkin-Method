@@ -31,7 +31,7 @@ class DataSampler:
         :return: x_batch, y_batch
         """
         if all:
-            return self.x_y_observe
+            return self.x_y_observe, self.grad
         Num = self.x_y_observe.shape[0]
         # print("Num = ", Num)
         index = torch.randint(0, Num, [self.train_size])

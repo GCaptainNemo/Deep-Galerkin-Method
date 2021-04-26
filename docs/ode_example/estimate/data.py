@@ -15,8 +15,16 @@ class DataSampler:
         self.whole_space_size = batch_size
         self.boundary_size = sample_size
         self.x_y_observe = x_y_observe
-        self.x_y_observe.requires_grad = True
         self.train_size = train_size
+        self.grad = self.grad_estimate()
+
+    def grad_estimate(self):
+        num = self.x_y_observe.shape[0]
+        grad = torch.zeros([num, 1])
+        for i in range(1, num):
+            grad[i, 0] = (self.x_y_observe[i, 1] - self.x_y_observe[i - 1, 1]) / \
+                         (self.x_y_observe[i, 0] - self.x_y_observe[i - 1, 0])
+        return grad
 
     def sample(self):
         x_batch = 4 * torch.rand([self.whole_space_size, 1])
@@ -29,11 +37,13 @@ class DataSampler:
         :return: x_batch, y_batch
         """
         if all:
-            return self.x_y_observe
+            return self.x_y_observe, self.grad
         Num = self.x_y_observe.shape[0]
         # print("Num = ", Num)
         index = torch.randint(0, Num, [self.train_size])
         x_y_sample = self.x_y_observe[index, :]
-        return x_y_sample
+        # x_y_sample = self.x_y_observe[index, :]
+        grad_estimate = self.grad[index, :]
+        return x_y_sample, grad_estimate
 
 

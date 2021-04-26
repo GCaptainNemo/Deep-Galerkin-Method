@@ -31,10 +31,10 @@ class Train:
         real_k = np.array([1, 1])
         for e in range(epoch):
             optimizer.zero_grad()
-            if e % 1000 < 600:
-                loss = self.criterion.loss_func(mse=True)
-            else:
-                loss = self.criterion.loss_func()
+            # if e % 1000 < 600:
+            loss = self.criterion.loss_func(option='both')
+            # else:
+            # loss = self.criterion.loss_func()
             avg_loss = avg_loss + float(loss.item())
             loss.backward()
             optimizer.step()
