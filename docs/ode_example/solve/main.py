@@ -3,12 +3,10 @@
 # author： 11360
 # datetime： 2021/4/25 23:00 
 
-
-
-from docs.ode_example.model import *
-from docs.ode_example.data import *
-from docs.ode_example.criterion import *
-from docs.ode_example.train import *
+from docs.ode_example.solve.model import *
+from docs.ode_example.solve.data import *
+from docs.ode_example.solve.criterion import *
+from docs.ode_example.solve.train import *
 
 # model = ApproxSolve(15, 2) # 10 layer 2 node
 model = torch.load("model.pth")
