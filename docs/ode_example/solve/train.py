@@ -38,7 +38,7 @@ class Train:
                 error = self.criterion.loss_func()
                 self.errors.append(error.detach())
 
-                y_batch = self.criterion.model(self.x_batch).detach().numpy()
+                y_batch = self.criterion.bias_model(self.criterion.model(self.x_batch)).detach().numpy()
                 plt.cla()  # 清除原有图像
                 plt.plot(self.x_batch.numpy(), y_batch, label="估计y(x)")
                 plt.plot(real_x, real_y, c="r", label="真实y(x)")

@@ -41,4 +41,13 @@ class DataSampler:
         grad_estimate = self.grad[index, :]
         return x_y_sample, grad_estimate
 
+    def sample_init_point(self):
+        return self.x_y_observe[0, :]
+
+    def sample_grad(self):
+        Num = self.x_y_observe.shape[0]
+        # print("Num = ", Num)
+        index = torch.randint(0, Num, [self.train_size])
+        grad_estimate = self.grad[index, :]
+        return grad_estimate
 

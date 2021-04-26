@@ -20,14 +20,16 @@ class Train:
         plt.rcParams['font.sans-serif'] = ['SimHei']
         plt.rcParams['axes.unicode_minus'] = False
         optimizer = optim.Adam(self.criterion.model.parameters(), lr)
+        # optimizer = optim.Adam(self.criterion.bias_model.parameters(), lr)
+
         avg_loss = 0
         plt.figure()
         plt.ion()  # 打开交互式绘图interactive
         train_x = self.criterion.data_sampler.x_y_observe[:, 0].detach().numpy()
         train_y = self.criterion.data_sampler.x_y_observe[:, 1].detach().numpy()
 
-        real_x = np.array([0, 4])
-        real_y = np.array([0, 4])
+        real_x = train_x
+        real_y = train_y
         # real_k = np.array([1, 1])
         for e in range(epoch):
             optimizer.zero_grad()

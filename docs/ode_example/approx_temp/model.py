@@ -12,16 +12,34 @@ class ApproxTemp(nn.Module):
         self.input_layer_temp = nn.Linear(1, node_num_temp)
         self.hidden_layer_temp = nn.Linear(node_num_temp, node_num_temp)
         self.output_layer_temp = nn.Linear(node_num_temp, 1)
+        # self.bias = nn.Parameter(torch.tensor([0.0], requires_grad=True))
+        # self.register_parameter("bias", self.bias)
+
+        # self.bn_layer = nn.BatchNorm1d(num_features=node_num_temp, affine=True)
 
     def forward(self, x):
         input_x = x
         x = self.activate_function(self.input_layer_temp(input_x))
         for i in range(self.layer_num_temp):
             s = x
-            x = self.activate_function(self.hidden_layer_temp(x))
+            self.hidden_layer_temp(x)
+            # x = self.bn_layer(x)
+            x = self.activate_function(x)
             x = x + s
+        # x = self.activate_function(x)
         temp = self.output_layer_temp(x)
         return temp
 
     def activate_function(self, x):
         return torch.tanh(x)
+#
+#
+# class Bias(nn.Module):
+#     def __init__(self):
+#         super(Bias, self).__init__()
+#
+#
+#     def forward(self, x):
+#         print('bias = ', self.bias.data)
+#         return x + self.bias
+

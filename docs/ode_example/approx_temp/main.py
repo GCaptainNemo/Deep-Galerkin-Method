@@ -10,14 +10,18 @@ from docs.ode_example.approx_temp.train import *
 import torch
 
 # 10 layer 2 node
-model = ApproxTemp(30, 2)
+model = ApproxTemp(15, 2)
 # model = torch.load("model.pth")
 
-x = torch.linspace(0, 4, 50, dtype=torch.float32).reshape(-1, 1)
-observe_x_y = torch.cat([x, x], dim=1)
+x = torch.linspace(0, 4, 100, dtype=torch.float32).reshape(-1, 1)
+observe_x_y = torch.cat([x, x ** 2], dim=1)
+# observe_x_y = torch.cat([x, x], dim=1)
+
 # print("observe_x_y.shape = ", observe_x_y.shape)
 
-data_sampler = DataSampler(10, observe_x_y)  # 100 data, 10 boundary data
+data_sampler = DataSampler(30, observe_x_y)  # 100 data, 10 boundary data
+
+# bias_model = Bias()
 criterion = Criterion(model, data_sampler)
 
 train = Train(criterion)

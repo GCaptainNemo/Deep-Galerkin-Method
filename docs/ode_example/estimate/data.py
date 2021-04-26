@@ -38,9 +38,8 @@ class DataSampler:
         """
         if all:
             return self.x_y_observe, self.grad
-        Num = self.x_y_observe.shape[0]
-        # print("Num = ", Num)
-        index = torch.randint(0, Num, [self.train_size])
+        batch_num = self.x_y_observe.shape[0]
+        index = torch.randint(0, batch_num, [self.train_size])
         x_y_sample = self.x_y_observe[index, :]
         # x_y_sample = self.x_y_observe[index, :]
         grad_estimate = self.grad[index, :]
