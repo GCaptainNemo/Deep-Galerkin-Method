@@ -10,7 +10,7 @@ from docs.ode_example.estimate.train import *
 import torch
 
 # 10 layer 2 node(cond, temp)
-model = EstimateCond(15, 2, 10, 2)
+model = EstimateCond(3, 15, 3, 20)
 # model = torch.load("model.pth")
 
 x = torch.linspace(0, 4, 50, dtype=torch.float32).reshape(-1, 1)

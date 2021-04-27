@@ -17,7 +17,7 @@ model = torch.load("model.pth")
 x = torch.linspace(0, 4, 100, dtype=torch.float32).reshape(-1, 1)
 tx = 4 / 100
 
-observe_x_y = torch.cat([x, x ** 2], dim=1)
+observe_x_y = torch.cat([x, x ** 3], dim=1)
 # observe_x_y = torch.cat([x, x], dim=1)
 
 # print("observe_x_y.shape = ", observe_x_y.shape)

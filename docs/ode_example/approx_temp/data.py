@@ -39,7 +39,7 @@ class DataSampler:
         index = torch.randint(0, Num, [self.train_size])
         noise = torch.randn([self.train_size]) * 0.1
         x_y_sample = self.x_y_observe[index, :]
-        x_y_sample[:, 0] += noise
+        # x_y_sample[:, 0] += noise
         # self.x_y_observe = self.x_y_observe[index, 0] + noise
 
         # x_y_sample = self.x_y_observe[index, :]

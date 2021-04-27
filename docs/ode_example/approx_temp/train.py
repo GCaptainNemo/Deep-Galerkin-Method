@@ -37,7 +37,7 @@ class Train:
             #     loss = self.criterion.loss_func(mse=True)
             # else:
             #     loss = self.criterion.loss_func()
-            loss = self.criterion.loss_func()
+            loss = self.criterion.loss_func(mse_=True)
             avg_loss = avg_loss + float(loss.item())
             loss.backward()
             optimizer.step()
@@ -45,7 +45,7 @@ class Train:
                 loss = avg_loss / 50
                 print("Step {} - lr {} -  loss: {}".format(e, lr, loss))
                 avg_loss = 0
-                error = self.criterion.loss_func()
+                error = self.criterion.loss_func(mse_=True)
                 self.errors.append(error.detach())
                 y_batch = self.criterion.model(self.x_batch).detach().numpy()
                 # 清除原有图像
