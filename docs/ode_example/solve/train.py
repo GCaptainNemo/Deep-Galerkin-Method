@@ -23,8 +23,10 @@ class Train:
         avg_loss = 0
         plt.figure()
         plt.ion()  # 打开交互式绘图interactive
-        real_x = np.array([0, 4])
-        real_y = np.array([0, 4])
+        # real_x = np.array([0, 4])
+        real_x = np.linspace(0, 4, 100)
+        real_y = real_x ** 2 / 2
+        # real_y = np.array([0, 4])
         for e in range(epoch):
             optimizer.zero_grad()
             loss = self.criterion.loss_func()
@@ -38,7 +40,7 @@ class Train:
                 error = self.criterion.loss_func()
                 self.errors.append(error.detach())
 
-                y_batch = self.criterion.bias_model(self.criterion.model(self.x_batch)).detach().numpy()
+                y_batch = self.criterion.model(self.x_batch).detach().numpy()
                 plt.cla()  # 清除原有图像
                 plt.plot(self.x_batch.numpy(), y_batch, label="估计y(x)")
                 plt.plot(real_x, real_y, c="r", label="真实y(x)")

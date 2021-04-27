@@ -8,13 +8,13 @@ from docs.ode_example.solve.data import *
 from docs.ode_example.solve.criterion import *
 from docs.ode_example.solve.train import *
 
-# model = ApproxSolve(15, 2) # 10 layer 2 node
-model = torch.load("model.pth")
+model = ApproxSolve(15, 2) # 10 layer 2 node
+# model = torch.load("model_relu.pth")
 data_sampler = DataSampler(100, 1)  # 100 data, 10 boundary data
 criterion = Criterion(model, data_sampler)
 
 train = Train(criterion)
-train.train(5000, 1e-4)
+train.train(5000, 3e-4)
 
 torch.save(model, 'model.pth')
 

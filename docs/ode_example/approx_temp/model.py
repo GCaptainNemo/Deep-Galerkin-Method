@@ -31,6 +31,7 @@ class ApproxTemp(nn.Module):
         return temp
 
     def activate_function(self, x):
+        # return torch.relu(x)
         return torch.tanh(x)
 #
 #

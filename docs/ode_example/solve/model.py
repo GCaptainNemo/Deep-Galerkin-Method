@@ -24,3 +24,5 @@ class ApproxSolve(nn.Module):
 
     def activate_function(self, x):
         return torch.tanh(x)
+
+        # return torch.relu(x)
