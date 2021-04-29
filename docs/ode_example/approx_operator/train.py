@@ -20,8 +20,8 @@ class Train:
         optimizer = optim.Adam(self.criterion.model.parameters(), lr)
         # optimizer_trunk = optim.Adam(self.criterion.trunk_net.parameters(), lr)
 
-        avg_loss = 0
         for e in range(epoch):
+            avg_loss = 0
             for i, data in enumerate(self.dataloader):
                 # data.cuda()
                 # print("data.device = ", data.device)

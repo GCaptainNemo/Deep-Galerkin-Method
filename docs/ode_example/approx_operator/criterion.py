@@ -10,11 +10,13 @@ class Criterion:
     def __init__(self, model):
         self.model = model
 
-    def loss_func(self, data):
+    def loss_func(self, data, point=True):
         # # dim = [batch_num, 10]
-        input_data = data[:, :101]
-        guy = data[:, -1].reshape([-1, 1])
-        estimate_guy = self.model(input_data)
-        mse = torch.mean((estimate_guy - guy) ** 2)
+        if point:
+            input_data = data[:, :201]
+            
+            guy = data[:, -1].reshape([-1, 1])
+            estimate_guy = self.model(input_data)
+            mse = torch.mean((estimate_guy - guy) ** 2)
         return mse
 

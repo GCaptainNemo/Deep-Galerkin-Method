@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # author： 11360
-# datetime： 2021/4/28 14:29 
+# datetime： 2021/4/28 14:29
 import torch
 import pickle
 import torch.utils.data as data
@@ -10,95 +10,81 @@ import matplotlib.pyplot as plt
 
 
 class CreateChebyData:
-    def __init__(self, batch_num, cheby_degree):
+    def __init__(self, cheby_degree):
         """
-
         :param batch_num: y num
         :param cheby_degree: cheybshev polynomials degree
         """
-        self.batch_num = batch_num
         self.cheby_degree = cheby_degree
-        # Cheybshev polynomials(first two), [-1, 1]
-        self.basis_functions = self.create_chebyshev_basis()
         self.proportion_bound = 5
 
-    def create_chebyshev_basis(self):
-        basis_functions = torch.zeros([self.cheby_degree, 100])
-        basis_functions[0, :] = 1
-        x1 = (torch.linspace(0, 4, 100) - 2) / 2
-        basis_functions[1, :] = x1
-        for i in range(2, self.cheby_degree):
-            basis_functions[i, :] = 2 * basis_functions[1, :] * basis_functions[i - 1, :] \
-                                    - basis_functions[i - 2, :]
-        return basis_functions
-
     def sample_chebyshev_batch(self):
-        """ sample from [0, 4] Chebyshev(Orthogonol) polynomials """
+        """ sample from [0, 1] Chebyshev(Orthogonol) polynomials """
         coefficient = (torch.rand([1, self.cheby_degree]) - 0.5) * 2 * \
                       self.proportion_bound
-        branch_u = torch.ones([self.batch_num, 1]) @ coefficient @ \
-                   self.basis_functions
+        origin_x = torch.rand([100, 1])
+        ux = self.cal_g_u_y_chebyshev(origin_x, coefficient)
 
-        # y sample uniformly on [0, 4]
-        trunk_y = torch.rand([self.batch_num, 1]) * 4
+        # y sample uniformly on [0, 1]
+        trunk_y = torch.rand([1, 1])
         guy = self.cal_g_u_y_chebyshev(trunk_y, coefficient)
-        u_y_guy = torch.cat([branch_u, trunk_y, guy], dim=1)
-        return u_y_guy
+        x_ux_y_guy = torch.cat([origin_x.t(), ux.t(), trunk_y, guy], dim=1)
+        return origin_x, x_ux_y_guy
 
     def cal_g_u_y_chebyshev(self, y, coefficient):
         """ calculate G(u)(y) """
         batch_num = y.shape[0]
         linshi_matrix = torch.zeros([batch_num, self.cheby_degree])
         linshi_matrix[:, 0] = 1
-        linshi_matrix[:, 1] = (y.reshape([-1]) - 2) / 2
+        linshi_matrix[:, 1] = (y.reshape([-1]) - 0.5) * 2
         for i in range(2, self.cheby_degree):
             linshi_matrix[:, i] = 2 * linshi_matrix[:, 1] * linshi_matrix[:, i - 1] - \
                                   linshi_matrix[:, i - 2]
         return linshi_matrix @ coefficient.t()
 
     def create_dataset(self, function_num):
-        u_y_guy = self.sample_chebyshev_batch()
+        x_ux_y_guy = self.sample_chebyshev_batch()
         for i in range(1, function_num):
-            u_y_guy = torch.cat([u_y_guy, self.sample_chebyshev_batch()], dim=0)
-        with open("chebyshev.pkl", "wb") as f:
-            pickle.dump(u_y_guy, f)
+            x_ux_y_guy = torch.cat([x_ux_y_guy, self.sample_chebyshev_batch()], dim=0)
+        with open("chebyshev_ux.pkl", "wb") as f:
+            pickle.dump(x_ux_y_guy, f)
 
 
 class CreateGpData:
-    def __init__(self, l, batch_size):
+    def __init__(self, l):
         """
         create gaussian process data as function space {f(x)}
         :param l: radial basis function(length), larger l leads to smoother f(x)
         """
         self.l = l
-        self.left_tri_matrix = self.caculate_covariance_matrix()
-        self.batch_size = batch_size
 
     def caculate_covariance_matrix(self):
-        covariance = torch.linspace(0, 4, 100).reshape([-1, 1])
-        covariance = covariance ** 2 + (covariance ** 2).t() - 2 * covariance @ covariance.t()
+        x_origin = torch.rand([100, 1])
+        covariance = x_origin ** 2 + (x_origin ** 2).t() - 2 * x_origin @ x_origin.t()
         covariance = torch.exp(-covariance / self.l)
-        covariance = covariance + torch.eye(100) * 1e-6
+        covariance = covariance + torch.eye(100) * 1e-5
         result = torch.cholesky(covariance, upper=False)
-        return result
+        return x_origin, result
 
     def sample_from_gp(self):
-        u = torch.ones([self.batch_size, 1]) @ \
-            (self.left_tri_matrix @ \
-            torch.randn([100, 1])).reshape([1, -1])
-        y = torch.rand([self.batch_size, 1]) * 4
-        x = np.linspace(0, 4, 100)
+        origin_x, left_tri_matrix = self.caculate_covariance_matrix()
+        u_x = (left_tri_matrix @ origin_x).reshape([1, -1])
+        origin_x = origin_x.reshape([1, -1])
+        y = torch.rand([1, 1])
         # One-dimensional linear interpolation.
-        guy = torch.from_numpy(np.interp(y, x, u[0, :].numpy())).to(dtype=torch.float32)
-        print(guy.shape)
-        data = torch.cat([u, y, guy], dim=1)
+        linshi_x, index_x = origin_x.sort(dim=1)
+        linshi_x = linshi_x.squeeze(dim=0).numpy()
+        linshi_u_x = u_x[0, index_x].squeeze(dim=0).numpy()
+        # linshi = torch.cat([origin_x, u_x], dim=0).sort(dim=1)
+        guy = torch.from_numpy(np.interp(y, linshi_x, linshi_u_x)).to(dtype=torch.float32)
+        data = torch.cat([origin_x, u_x, y, guy], dim=1)
         return data
 
     def create_dataset(self, function_num):
         data = self.sample_from_gp()
         for i in range(1, function_num):
             data = torch.cat([data, self.sample_from_gp()], dim=0)
-        with open("gaussian.pkl", "wb") as f:
+        with open("gaussian_ux.pkl", "wb") as f:
             pickle.dump(data, f)
 
 
@@ -130,24 +116,28 @@ class TestDataset:
         print(self.trainset.shape)
 
     def plot(self, num):
-        u = self.trainset[num, :100].numpy()
-        x = np.linspace(0, 4, 100)
+        x = self.trainset[num, 0:100].numpy()
+        u = self.trainset[num, 100:200].numpy()
+
+        # x = np.linspace(0, 4, 100)
         plt.figure(1)
         # plt.subplot(121)
         plt.scatter(x, u, c="r", s=2)
         # plt.subplot(122)
-        plt.scatter(self.trainset[num, 100], self.trainset[num, 101], s=2)
+        plt.scatter(self.trainset[num, 200], self.trainset[num, 201], s=2)
         plt.show()
 
 
 if __name__ == "__main__":
-    create_gp_obj = CreateGpData(0.2, 10)
-    # create_gp_obj.create_dataset(10)
-    # create_gp_obj.caculate_covariance_matrix()
-    # create_data_obj = CreateDataset(100, 10)
-    # create_data_obj.create_dataset(function_num=100)
+    # create_gp_obj = CreateGpData(0.2)
+    # create_gp_obj.create_dataset(1000)
 
-    # dir = "chebyshev.pkl"
-    # dir = "gaussian.pkl"
-    # test_obj = TestDataset(dir)
-    # test_obj.plot(16)
+    # create_data_obj = CreateChebyData(10)
+    # create_data_obj.create_dataset(function_num=1000)
+
+    # dir = "chebyshev_ux.pkl"
+    dir = "gaussian_ux.pkl"
+    test_obj = TestDataset(dir)
+    test_obj.plot(59)
+
+

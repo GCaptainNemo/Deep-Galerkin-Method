@@ -16,7 +16,7 @@ input_ = torch.cat([u, y], dim=1)
 output_ = model(input_).detach().numpy()
 print(output_.shape)
 plt.figure(1)
-plt.scatter(y, output_, c="r")
+plt.scatter(y, output_, c="r", s=2)
 
 plt.show()
 
