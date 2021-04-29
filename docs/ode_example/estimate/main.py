@@ -9,8 +9,8 @@ from docs.ode_example.estimate.criterion import *
 from docs.ode_example.estimate.train import *
 import torch
 
-# 10 layer 2 node(cond, temp)
-model = EstimateCond(3, 15, 3, 20)
+# 3 layer 15 node(cond, temp)
+model = EstimateCond(30, 3, 30, 3)
 # model = torch.load("model.pth")
 
 x = torch.linspace(0, 4, 50, dtype=torch.float32).reshape(-1, 1)

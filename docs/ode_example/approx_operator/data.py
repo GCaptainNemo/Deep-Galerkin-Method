@@ -93,15 +93,10 @@ class CreateGpData:
             (self.left_tri_matrix @ \
             torch.randn([100, 1])).reshape([1, -1])
         y = torch.rand([self.batch_size, 1]) * 4
-        guy = torch.zeros(y.shape)
-        x_step = 4 / 99
-        for i in range(self.batch_size):
-            index = int(y[i, 0].item() // x_step)
-            # print(index)
-            u_left = u[0, index]
-            u_right = u[0, index + 1]
-            fraction = (y[i, 0] - index * x_step) / x_step
-            guy[i, 0] = fraction * u_right + (1 - fraction) * u_left
+        x = np.linspace(0, 4, 100)
+        # One-dimensional linear interpolation.
+        guy = torch.from_numpy(np.interp(y, x, u[0, :].numpy())).to(dtype=torch.float32)
+        print(guy.shape)
         data = torch.cat([u, y, guy], dim=1)
         return data
 
@@ -157,7 +152,8 @@ if __name__ == "__main__":
     # create_gp_obj.caculate_covariance_matrix()
     # create_data_obj = CreateDataset(100, 10)
     # create_data_obj.create_dataset(function_num=100)
-    dir = "chebyshev.pkl"
-    # dir = "gaussian.pkl"
+
+    # dir = "chebyshev.pkl"
+    dir = "gaussian.pkl"
     test_obj = TestDataset(dir)
-    test_obj.plot(1009)
+    test_obj.plot(16)
