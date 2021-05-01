@@ -19,7 +19,7 @@ class Train:
     def train(self, epoch, lr):
         optimizer = optim.Adam(self.criterion.model.parameters(), lr)
         # optimizer_trunk = optim.Adam(self.criterion.trunk_net.parameters(), lr)
-
+        epoch_data_num = len(self.dataloader.dataset)
         for e in range(epoch):
             avg_loss = 0
             for i, data in enumerate(self.dataloader):
@@ -31,12 +31,12 @@ class Train:
                 avg_loss = avg_loss + float(loss.item())
                 loss.backward()
                 optimizer.step()
-            if e % 20 == 19:
-                loss = avg_loss / 20
-                print("Epoch {} - lr {} -  loss: {}".format(e, lr, loss))
-                avg_loss = 0
-                self.errors.append(loss)
-                # 清除原有图像
+                if i % 20 == 19:
+                    loss = avg_loss / 20
+                    print("Iteration {} - lr {} -  loss: {}".format(e, lr, loss))
+                    avg_loss = 0
+                    self.errors.append(loss)
+                    # 清除原有图像
 
     def get_errors(self):
         return self.errors

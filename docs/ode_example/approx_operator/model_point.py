@@ -42,6 +42,7 @@ class OperatorPointApprox(nn.Module):
         x = torch.max(x, 2, keepdim=True)[0]
         # print(x.shape)
         x = x.view(-1, 1024) # N x 1024
+        # print(x.shape)
 
         x = self.activate(self.bn5(self.fc5(x)))
         x = self.activate(self.bn6(self.fc6(x)))
@@ -63,7 +64,8 @@ class OperatorPointApprox(nn.Module):
         trunk_input = x[:, 200].reshape(-1, 1)
         branch_output = self.branch_net(branch_input)
         trunk_output = self.trunk_net(trunk_input)
-        guy = branch_output @ trunk_output.t() + self.bias
+        guy = torch.sum(branch_output * trunk_output, dim=1) + self.bias
+        # print("guy.shape = ", guy.shape)
         return guy
 
     def activate(self, x):

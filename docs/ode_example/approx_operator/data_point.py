@@ -53,6 +53,7 @@ class CreateChebyData:
 class CreateGpData:
     def __init__(self, l):
         """
+        [0, 1]
         create gaussian process data as function space {f(x)}
         :param l: radial basis function(length), larger l leads to smoother f(x)
         """

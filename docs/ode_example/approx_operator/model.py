@@ -53,7 +53,7 @@ class OperatorApprox(nn.Module):
         trunk_input = x[:, 100].reshape(-1, 1)
         branch_output = self.branch_net(branch_input)
         trunk_output = self.trunk_net(trunk_input)
-        guy = branch_output @ trunk_output.t() + self.bias
+        guy = torch.sum(branch_output * trunk_output, dim=1) + self.bias
         return guy
 
     def activate(self, x):

@@ -14,7 +14,9 @@ from docs.ode_example.approx_operator.train import *
 train_data = CustomDataset("gaussian_ux.pkl")
 
 train_loader = data.DataLoader(dataset=train_data, batch_size=30, shuffle=True)
-model = OperatorPointApprox(30, 10)
+
+# model = OperatorPointApprox(30, 10)
+model = torch.load("model_point.pth")
 # model = OperatorApprox(30, 100, 30, 100)
 # model = torch.load("model.pth")
 # model = model.cuda()
@@ -22,7 +24,7 @@ model = OperatorPointApprox(30, 10)
 criterion = Criterion(model)
 train = Train(train_loader, criterion)
 
-train.train(1000, 1e-3)
+train.train(200, 1e-4)
 torch.save(model, 'model_point.pth')
 
 
