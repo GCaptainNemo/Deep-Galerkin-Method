@@ -3,10 +3,10 @@
 # author： 11360
 # datetime： 2021/4/25 23:00
 
-from docs.ode_example.estimate.model import *
-from docs.ode_example.estimate.data import *
-from docs.ode_example.estimate.criterion import *
-from docs.ode_example.estimate.train import *
+from docs.ode_example.inverse_problem.model import *
+from docs.ode_example.inverse_problem.data import *
+from docs.ode_example.inverse_problem.criterion import *
+from docs.ode_example.inverse_problem.train import *
 import torch
 
 # 3 layer 15 node(cond, temp)

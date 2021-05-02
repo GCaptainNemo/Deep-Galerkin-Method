@@ -23,18 +23,11 @@ class Train:
         avg_loss = 0
         plt.figure()
         plt.ion()  # 打开交互式绘图interactive
-        train_x = self.criterion.data_sampler.x_y_observe[:, 0].detach().numpy()
-        train_y = self.criterion.data_sampler.x_y_observe[:, 1].detach().numpy()
-
         real_x = np.array([0, 4])
         real_y = np.array([0, 4])
-        real_k = np.array([1, 1])
         for e in range(epoch):
             optimizer.zero_grad()
-            # if e % 1000 < 600:
-            loss = self.criterion.loss_func(option='both')
-            # else:
-            # loss = self.criterion.loss_func()
+            loss = self.criterion.loss_func()
             avg_loss = avg_loss + float(loss.item())
             loss.backward()
             optimizer.step()
@@ -44,19 +37,14 @@ class Train:
                 avg_loss = 0
                 error = self.criterion.loss_func()
                 self.errors.append(error.detach())
-                cond_batch, y_batch = self.criterion.model(self.x_batch)
-                cond_batch = cond_batch.detach().numpy()
+                y_batch = self.criterion.model(self.x_batch)
                 y_batch = y_batch.detach().numpy()
                 # 清除原有图像
                 plt.cla()
                 plt.plot(self.x_batch.numpy(), y_batch, label='估计y(x)')
                 plt.plot(real_x, real_y, c="y", label="真实y(x)")
-                plt.scatter(train_x, train_y, c="r", s=4)
                 plt.title("loss = {}".format(loss))
 
-                plt.plot(self.x_batch.numpy(), cond_batch, label="估计k(x)")
-                plt.plot(real_x, real_k, c="k", label="真实k(x)")
-                # plt.title("loss = {}".format(loss))
                 plt.legend()
                 plt.pause(0.1)
                 display.clear_output(wait=True)  # 每次显示完图以后删除，达到显示动图的效果
