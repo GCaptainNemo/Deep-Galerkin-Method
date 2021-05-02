@@ -4,3 +4,4 @@ src/net_model.pkl
 docs/.ipynb_checkpoints
 model/
 pictures/
+*.pth
