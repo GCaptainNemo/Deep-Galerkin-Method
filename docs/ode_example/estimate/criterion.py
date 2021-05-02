@@ -47,8 +47,10 @@ class Criterion:
             jacob_matrix = torch.autograd.grad(y_batch, x_batch, grad_outputs=torch.ones_like(y_batch),
                                                create_graph=True)
             dy_dx = jacob_matrix[0][:, 0].reshape(-1, 1)
+            # ode loss + initial loss
             whole_error = torch.mean((cond_batch * dy_dx - 1) ** 2) + torch.mean(y_0 ** 2)
 
+            # ####################################################################
             # sample from the train set
             x_y_sample_train, grad = self.data_sampler.sample_x_y()
             x_batch_train = x_y_sample_train[:, 0].reshape(-1, 1)
@@ -58,6 +60,7 @@ class Criterion:
                                                create_graph=True)
             dy_dx_train = jacob_matrix_train[0][:, 0].reshape(-1, 1)
             temp_mse = torch.mean((y_batch_train - x_y_sample_train[:, 1]) ** 2)
+            # mse loss + grad loss
             train_error = temp_mse + 100 * torch.mean((dy_dx_train - grad) ** 2)
             # train_error = temp_mse
 
