@@ -22,5 +22,4 @@ class Criterion:
         dy_dx = jacob_matrix[0][:, 0].reshape(-1, 1)
         # ode loss + initial loss
         error = torch.mean((dy_dx - 1) ** 2) + torch.mean(y_0 ** 2)
-
         return error

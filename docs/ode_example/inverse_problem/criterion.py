@@ -35,7 +35,6 @@ class Criterion:
         temp_mse = torch.mean((y_batch_train - x_y_sample_train[:, 1]) ** 2)
         # mse loss + grad loss
         train_error = temp_mse + 100 * torch.mean((dy_dx_train - grad) ** 2)
-        # train_error = temp_mse
 
         # ####################################################################
         error = whole_error + train_error
