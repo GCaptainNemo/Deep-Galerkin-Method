@@ -13,7 +13,7 @@ model = SolveOde(3, 30)
 # model = torch.load("model.pth")
 
 
-data_sampler = DataSampler(100, 1)  # 100 data, 1 boundary data
+data_sampler = DataSampler(100, 2)  # 100 data, 1 boundary data
 criterion = Criterion(model, data_sampler)
 
 train = Train(criterion)
