@@ -11,6 +11,7 @@ import torch
 
 # 3 layer 15 node(cond, temp)
 model = EstimateCond(3, 30, 3, 30)
+print("inverse model:", model)
 # model = torch.load("model.pth")
 
 x = torch.linspace(0, 4, 50, dtype=torch.float32).reshape(-1, 1)

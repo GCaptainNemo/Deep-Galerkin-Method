@@ -8,11 +8,11 @@ class SolveOde(nn.Module):
     def __init__(self, depth, width):
         super(SolveOde, self).__init__()
         self.input_layer_cond = nn.Linear(1, width)
-        self.lbr = nn.Sequential(
+        self.lt = nn.Sequential(
             nn.Linear(width, width),
             nn.Tanh()
         )
-        self.hidden_layers = nn.ModuleList([self.lbr for i in range(depth)])
+        self.hidden_layers = nn.ModuleList([self.lt for i in range(depth)])
         self.output_layer_cond = nn.Linear(width, 1)
 
     def forward(self, x):

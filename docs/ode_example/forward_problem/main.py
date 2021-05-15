@@ -11,7 +11,7 @@ import torch
 
 model = SolveOde(3, 30)
 # model = torch.load("model.pth")
-
+# print("model:", model)
 
 data_sampler = DataSampler(100, 2)  # 100 data, 1 boundary data
 criterion = Criterion(model, data_sampler)
