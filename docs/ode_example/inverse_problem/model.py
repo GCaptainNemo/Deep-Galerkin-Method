@@ -5,35 +5,33 @@ import torch.optim as optim
 
 # dy/dx = 3, y(x) = 0 x \in [0, 4]
 class EstimateCond(nn.Module):
-    def __init__(self, layer_num_cond, node_num_cond, layer_num_temp, node_num_temp):
+    def __init__(self, depth_cond, width_cond, depth_temp, width_temp):
         super(EstimateCond, self).__init__()
-        self.node_num_cond = node_num_cond
-        self.layer_num_cond = layer_num_cond
-        self.input_layer_cond = nn.Linear(1, node_num_cond)
-        self.hidden_layer_cond = nn.Linear(node_num_cond, node_num_cond)
-        self.output_layer_cond = nn.Linear(node_num_cond, 1)
+        self.input_layer_cond = nn.Linear(1, width_cond)
+        self.hidden_layers_cond = nn.ModuleList([nn.Linear(width_cond, width_cond)
+                                            for i in range(depth_cond)])
+        self.output_layer_cond = nn.Linear(width_cond, 1)
         # ########################################################33
-        self.node_num_temp = node_num_temp
-        self.layer_num_temp = layer_num_temp
-        self.input_layer_temp = nn.Linear(1, node_num_temp)
-        self.hidden_layer_temp = nn.Linear(node_num_temp, node_num_temp)
-        self.output_layer_temp = nn.Linear(node_num_temp, 1)
+        self.input_layer_temp = nn.Linear(1, width_temp)
+        self.hidden_layers_temp = nn.ModuleList(
+            [nn.Linear(width_temp, width_temp) for i in range(depth_temp)])
+        self.output_layer_temp = nn.Linear(width_temp, 1)
 
     def forward(self, x):
         input_x = x
         x = self.activate_function(self.input_layer_cond(x))
-        for i in range(self.layer_num_cond):
+        for i, l in enumerate(self.hidden_layers_cond):
             s = x
-            x = self.activate_function(self.hidden_layer_cond(x))
+            x = self.activate_function(l(x))
             x = x + s
         cond = self.output_layer_cond(x)
 
         # ######################################################3
 
         x = self.activate_function(self.input_layer_temp(input_x))
-        for i in range(self.layer_num_temp):
+        for i, l in enumerate(self.hidden_layers_temp):
             s = x
-            x = self.activate_function(self.hidden_layer_temp(x))
+            x = self.activate_function(l(x))
             x = x + s
         temp = self.output_layer_temp(x)
         return cond, temp
