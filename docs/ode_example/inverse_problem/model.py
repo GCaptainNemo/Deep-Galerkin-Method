@@ -13,6 +13,8 @@ class EstimateCond(nn.Module):
         self.hidden_layers_cond = nn.ModuleList([self.lt_cond
                                             for i in range(depth_cond)])
         self.output_layer_cond = nn.Linear(width_cond, 1)
+        self.output_layer_cond_2 = nn.Linear(width_cond, 2)
+
         # ########################################################33
         self.input_layer_temp = nn.Linear(1, width_temp)
         self.lt_temp = nn.Sequential(nn.Linear(width_temp, width_temp),
@@ -21,24 +23,43 @@ class EstimateCond(nn.Module):
             [self.lt_temp for i in range(depth_temp)])
         self.output_layer_temp = nn.Linear(width_temp, 1)
 
+    # def forward(self, x):
+    #     """
+    #     loose coupled
+    #     :param x:
+    #     :return:
+    #     """
+    #     input_x = x
+    #     x = self.activate_function(self.input_layer_cond(x))
+    #     for i, lt in enumerate(self.hidden_layers_cond):
+    #         s = x
+    #         x = lt(x)
+    #         x = x + s
+    #     cond = self.output_layer_cond(x)
+    #
+    #     # ######################################################3
+    #
+    #     x = self.activate_function(self.input_layer_temp(input_x))
+    #     for i, lt in enumerate(self.hidden_layers_temp):
+    #         s = x
+    #         x = lt(x)
+    #         x = x + s
+    #     temp = self.output_layer_temp(x)
+    #     return cond, temp
+
     def forward(self, x):
-        input_x = x
+        """
+        tight coupled
+        :param x:
+        :return:
+        """
         x = self.activate_function(self.input_layer_cond(x))
         for i, lt in enumerate(self.hidden_layers_cond):
             s = x
             x = lt(x)
             x = x + s
-        cond = self.output_layer_cond(x)
-
-        # ######################################################3
-
-        x = self.activate_function(self.input_layer_temp(input_x))
-        for i, lt in enumerate(self.hidden_layers_temp):
-            s = x
-            x = lt(x)
-            x = x + s
-        temp = self.output_layer_temp(x)
-        return cond, temp
+        output = self.output_layer_cond_2(x)
+        return output[:, 0], output[:, 1]
 
     def activate_function(self, x):
         return torch.tanh(x)
