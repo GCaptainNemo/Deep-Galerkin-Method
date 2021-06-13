@@ -25,7 +25,7 @@ class EstimateCond(nn.Module):
 
     # def forward(self, x):
     #     """
-    #     loose coupled
+    #     loose coupled: two network
     #     :param x:
     #     :return:
     #     """
@@ -49,7 +49,7 @@ class EstimateCond(nn.Module):
 
     def forward(self, x):
         """
-        tight coupled
+        tight coupled: one network with the same parameters
         :param x:
         :return:
         """
